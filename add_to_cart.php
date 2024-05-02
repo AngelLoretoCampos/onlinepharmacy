@@ -21,10 +21,10 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Check if product_id is set
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['product_id'])) {
+// Check if product_id and quantity are set
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['product_id']) && isset($_POST['quantity'])) {
     $product_id = $_POST['product_id'];
-    $quantity = 1; // You can add a quantity field in the form if needed
+    $quantity = $_POST['quantity']; // Get the quantity selected by the user
 
     // Check if the product is already in the cart
     $stmt = $conn->prepare("SELECT * FROM cart WHERE user_id = ? AND product_id = ?");

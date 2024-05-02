@@ -1,8 +1,41 @@
+<?php
+include 'database/dbconnection.php';
+
+// Check if a search query is provided
+if (isset($_GET['query']) && !empty($_GET['query'])) {
+    $search_query = $_GET['query'];
+
+    // Perform search query in your database
+    $stmt = $conn->prepare("SELECT id, product_name, price, product_image FROM products WHERE product_name LIKE ?");
+    $stmt->execute(["%$search_query%"]);
+    $search_results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} else {
+    // If no search query provided, fetch products based on category filter or all products
+    $sql = "SELECT id, product_name, price, product_image FROM products";
+
+    // Check if category filter is provided
+    if (isset($_GET['category']) && !empty($_GET['category'])) {
+        $category = $_GET['category'];
+        $sql .= " WHERE category = '$category'";
+    }
+
+    // Execute SQL query
+    $result = $conn->query($sql);
+
+    // Fetch products
+    if ($result) {
+        $search_results = $result->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        $search_results = [];
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Homepage</title>
+    <title>Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         .product-card {
@@ -24,38 +57,15 @@
     </style>
 </head>
 <body class="bg-gray-100">
-<?php
-include 'inc/header.php';
 
-// Database connection
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "onlinepharmacy_db";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// Fetch products from database
-if(isset($_GET['query'])) {
-    $search_query = $_GET['query'];
-    $sql = "SELECT id, product_name, price, product_image FROM products WHERE product_name LIKE '%$search_query%'";
-} else {
-    $sql = "SELECT id, product_name, price, product_image FROM products";
-}
-
-$result = $conn->query($sql);
-?>
+<?php include 'inc/header.php'; ?>
 
 <main class="p-4 mt-40">
 
     <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <?php
-        if ($result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
+        if (!empty($search_results)) {
+            foreach ($search_results as $row) {
                 $product_id = $row['id'];
                 $product_name = $row['product_name'];
                 $product_price = $row['price'];
@@ -68,7 +78,6 @@ $result = $conn->query($sql);
                         <p class="text-gray-600">₱' . $product_price . '</p>
                     </div>
                 </a>';
-                
             }
         } else {
             echo '<p class="text-center">No products found.</p>';
@@ -81,4 +90,3 @@ $result = $conn->query($sql);
 
 </body>
 </html>
-

@@ -5,16 +5,22 @@ $dbname = 'onlinepharmacy_db';
 $dbUsername = 'root'; // replace with your database username
 $dbPassword = ''; // replace with your database password
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $contact = $_POST['contact'];
-    $password = $_POST['password'];
+try {
+    // Create a new PDO instance
+    $conn = new PDO("mysql:host=$host;dbname=$dbname", $dbUsername, $dbPassword);
 
-    try {
-        // Create a new PDO instance
-        $conn = new PDO("mysql:host=$host;dbname=$dbname", $dbUsername, $dbPassword);
+    // Set the PDO error mode to exception
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Set the PDO error mode to exception
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // Fetch the logo image from the database
+    $sqlLogo = "SELECT image FROM systemsetting";
+    $stmtLogo = $conn->query($sqlLogo);
+    $rowLogo = $stmtLogo->fetch(PDO::FETCH_ASSOC);
+    $logoBase64 = base64_encode($rowLogo['image']);
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $contact = $_POST['contact'];
+        $password = $_POST['password'];
 
         // SQL query to fetch rider by contact
         $sql = "SELECT * FROM riders WHERE contact = :contact";
@@ -45,16 +51,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             echo "Invalid contact or password!";
         }
-    } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
     }
-
-    // Close the database connection
-    $conn = null;
+} catch (PDOException $e) {
+    echo "Error: " . $e->getMessage();
 }
-?>
 
-<!-- ... (HTML part with updated form) ... -->
+// Close the database connection
+$conn = null;
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -68,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="container mx-auto p-4">
     <!-- Logo -->
     <div class="mb-8 text-center">
-        <img src="../system images/bgpp 1.png" alt="Logo" class="h-32 w-32  mx-auto mb-4">
+        <img src="data:image/jpeg;base64,<?php echo $logoBase64; ?>" alt="Logo" class="h-32 w-32  mx-auto mb-4">
     </div>
 
     <div class="container p-4">

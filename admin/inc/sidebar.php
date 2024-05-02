@@ -10,6 +10,7 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 $full_name = $_SESSION['full_name'];
+include 'inc/logodisplay.php';
 ?>
 
 <head>
@@ -20,9 +21,10 @@ $full_name = $_SESSION['full_name'];
 <div class="bg-green-600 text-black w-64 space-y-6 fixed top-0 left-0 h-full font-sans" style="background-color: #54CC7B;">
     <!-- Logo and Title -->
     <div class="flex flex-row items-center justify-center bg-gray-800 p-4 ">
-        <img src="../system images/bgpp 1.png" alt="Logo" class="h-10 mr-2">
-        <!-- Admin Name -->
-        <span class="text-xl text-white">Lyfe Pharmacy</span>
+        <img src="data:image/jpeg;base64,<?php echo $logoBase64; ?>" alt="Logo" class="h-10 mr-2">
+
+  
+        <span class="text-xl text-white"><?php echo $shortName; ?></span>
     </div>
 
     <!-- Navigation Links -->
@@ -45,7 +47,7 @@ $full_name = $_SESSION['full_name'];
             </li>
             <li>
                 <a href="client_list.php" class="flex items-center px-4 py-2 hover:bg-gray-800 hover:text-red-500 rounded transition duration-200">
-                    <i class="bi bi-people-fill mr-2"></i>Client List
+                    <i class="bi bi-people-fill mr-2"></i>User List
                 </a>
             </li>
             <li>

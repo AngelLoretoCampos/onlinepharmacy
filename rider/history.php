@@ -1,4 +1,15 @@
 <?php
+
+// Start session
+session_start();
+
+// Check if the user is not logged in, redirect to login page
+if (!isset($_SESSION['rider_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
+
 // Database credentials
 $servername = "localhost";
 $username = "root";
@@ -13,12 +24,23 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// SQL query to fetch data from the onlinepharmacy_db table with 'Delivered' status
+// SQL query to fetch data from the onlinepharmacy_db table with 'Delivered' status, ordered by order date descending
 $sql = "SELECT o.id, o.user_id, CONCAT(u.firstname, ' ', u.lastname) AS name, CONCAT(u.province, ', ', u.city, ', ', u.barangay, ', ', u.additional_address) AS address, 
         o.payment_method, o.ref_code, o.total_amount, o.order_date, o.order_status 
         FROM orders o
         JOIN users u ON o.user_id = u.id
-        WHERE o.order_status = 'Delivered'";
+        WHERE o.order_status = 'Delivered'
+        ORDER BY o.order_date DESC";
+
+
+// Fetch logo image from the database
+$sqlLogo = "SELECT image FROM systemsetting";
+$resultLogo = $conn->query($sqlLogo);
+$rowLogo = $resultLogo->fetch_assoc();
+$imageData = $rowLogo['image']; // Assuming the image is stored as a longblob in the database
+
+// Convert image data to base64 encoding
+$logoBase64 = base64_encode($imageData);
 
 $result = $conn->query($sql);
 
@@ -37,7 +59,7 @@ $result = $conn->query($sql);
 <body class="bg-gray-100">
     <div class="flex justify-between items-center px-4 py-2">
         <!-- Logo -->
-        <img src="../system images/bgpp 1.png" alt="Lyfe Pharmacy Logo" class="h-20">
+        <img src="data:image/jpeg;base64,<?php echo $logoBase64; ?>" alt="Lyfe Pharmacy Logo" class="h-20">
 
         <!-- History and Logout icons -->
         <div class="ml-auto flex space-x-4">

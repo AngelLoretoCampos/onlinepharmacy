@@ -32,6 +32,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Check if the update was successful
     if ($stmt->affected_rows > 0) {
         $message = "Order status updated successfully.";
+
+        // If the order is being canceled, restore product quantities
+        if ($order_status === "Cancelled") {
+            // Retrieve order items
+            $order_items_query = "SELECT product_id, quantity FROM order_items WHERE order_id = ?";
+            $order_items_stmt = $conn->prepare($order_items_query);
+            $order_items_stmt->bind_param("i", $order_id);
+            $order_items_stmt->execute();
+            $order_items_result = $order_items_stmt->get_result();
+
+            // Restore product quantities
+            while ($row = $order_items_result->fetch_assoc()) {
+                $product_id = $row['product_id'];
+                $quantity = $row['quantity'];
+                
+                // Increment product quantity
+                $update_product_query = "UPDATE products SET quantity = quantity + ? WHERE id = ?";
+                $update_product_stmt = $conn->prepare($update_product_query);
+                $update_product_stmt->bind_param("ii", $quantity, $product_id);
+                $update_product_stmt->execute();
+            }
+
+            // Close order items statement
+            $order_items_stmt->close();
+        }
     } else {
         $message = "Failed to update order status.";
     }

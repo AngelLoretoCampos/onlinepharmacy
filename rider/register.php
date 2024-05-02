@@ -11,6 +11,12 @@ try {
     // Set the PDO error mode to exception
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+// Fetch the logo image from the database
+    $sqlLogo = "SELECT image FROM systemsetting";
+    $stmtLogo = $conn->query($sqlLogo);
+    $rowLogo = $stmtLogo->fetch(PDO::FETCH_ASSOC);
+    $logoBase64 = base64_encode($rowLogo['image']);
+    
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fullName = $_POST['full_name'];
         $contact = $_POST['contact'];
@@ -46,8 +52,12 @@ try {
     echo "Error: " . $e->getMessage();
 }
 
+
+
 // Close the database connection
 $conn = null;
+
+
 ?>
 
 <!-- ... (HTML part remains unchanged) ... -->
@@ -67,7 +77,7 @@ $conn = null;
 <div class="container mx-auto p-4">
     <!-- Logo -->
     <div class="mb-8 text-center">
-        <img src="../system images/bgpp 1.png" alt="Logo" class="h-32 w-32  mx-auto mb-4">
+        <img src="data:image/jpeg;base64,<?php echo $logoBase64; ?>" alt="Logo" class="h-32 w-32  mx-auto mb-4">
     </div>
 
     <div class="bg-white rounded-lg shadow-md p-6 max-w-md mx-auto">

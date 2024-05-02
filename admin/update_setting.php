@@ -16,6 +16,8 @@ if ($conn->connect_error) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Retrieve form data
     $id = $_POST['id'];
+    $short = $_POST['short'];
+    $longname = $_POST['longname'];
     $about = $_POST['about'];
 
     // Check if an image file was uploaded
@@ -24,12 +26,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $imageData = file_get_contents($_FILES['image']['tmp_name']);
         
         // Update system setting with the image data in the database
-        $stmt = $conn->prepare("UPDATE systemsetting SET about = ?, image = ? WHERE id = ?");
-        $stmt->bind_param("ssi", $about, $imageData, $id);
+        $stmt = $conn->prepare("UPDATE systemsetting SET short = ?, longname = ?, about = ?, image = ? WHERE id = ?");
+        $stmt->bind_param("ssssi", $short, $longname, $about, $imageData, $id);
     } else {
         // Update system setting without the image data in the database
-        $stmt = $conn->prepare("UPDATE systemsetting SET about = ? WHERE id = ?");
-        $stmt->bind_param("si", $about, $id);
+        $stmt = $conn->prepare("UPDATE systemsetting SET short = ?, longname = ?, about = ? WHERE id = ?");
+        $stmt->bind_param("sssi", $short, $longname, $about, $id);
     }
     
     $stmt->execute();

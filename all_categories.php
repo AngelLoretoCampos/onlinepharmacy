@@ -1,8 +1,7 @@
 <?php
 include 'database/dbconnection.php';
+include 'inc/header.php'; 
 
-
- include 'inc/header.php'; 
 // Fetch all categories from the database
 $stmt = $conn->query("SELECT categoryName FROM category");
 $categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
@@ -17,14 +16,15 @@ $categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
 </head>
 <body class="bg-gray-100 mt-40">
 
-
 <main class="container mx-auto mt-40">
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <?php foreach ($categories as $category): ?>
-            <div class="bg-white p-4 rounded-lg shadow-md">
-                <h2 class="text-xl font-semibold mb-2"><?php echo $category; ?></h2>
-                <!-- You can add more information about each category here if needed -->
-            </div>
+            <a href="dashboard.php?category=<?php echo urlencode($category); ?>" class="category-link">
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold mb-2"><?php echo $category; ?></h2>
+                    <!-- You can add more information about each category here if needed -->
+                </div>
+            </a>
         <?php endforeach; ?>
     </div>
 </main>

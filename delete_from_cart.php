@@ -1,43 +1,32 @@
 <?php
 session_start();
 
-// Database connection
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "onlinepharmacy_db";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit;
-}
-
-$user_id = $_SESSION['user_id'];
-
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_item'])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['user_id'], $_POST['product_id'])) {
+    $user_id = $_POST['user_id'];
     $product_id = $_POST['product_id'];
 
-    // Delete product from cart
-    $stmt = $conn->prepare("DELETE FROM cart WHERE user_id = ? AND product_id = ?");
-    $stmt->bind_param("ii", $user_id, $product_id);
+    // Database connection
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "onlinepharmacy_db";
 
-    if ($stmt->execute()) {
-        header("Location: cart.php");
-        exit;
-    } else {
-        echo "Error deleting product: " . $stmt->error;
+    $conn = new mysqli($servername, $username, $password, $dbname);
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
     }
 
-    $stmt->close();
-    $conn->close();
+    // Delete the row from the cart table
+    $stmt = $conn->prepare("DELETE FROM cart WHERE user_id = ? AND product_id = ?");
+    $stmt->bind_param("ii", $user_id, $product_id);
+    $stmt->execute();
+
+    // Redirect back to cart.php
+    header("Location: cart.php");
+    exit;
 } else {
+    // Invalid request
     header("Location: cart.php");
     exit;
 }

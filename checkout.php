@@ -45,14 +45,15 @@ if (isset($_POST['confirm_order'])) {
             $product_name = $product_names[$i];
             $quantity = $quantities[$i];
 
-            // Fetch product details
-            $check_product = $conn->prepare("SELECT price, quantity as available_quantity, prescription_required FROM products WHERE product_name = ?");
+            // Fetch product details including product ID
+            $check_product = $conn->prepare("SELECT id, price, quantity as available_quantity, prescription_required FROM products WHERE product_name = ?");
             $check_product->bind_param("s", $product_name);
             $check_product->execute();
             $result = $check_product->get_result();
 
             if ($result->num_rows > 0) {
                 $row = $result->fetch_assoc();
+                $product_id = $row['id'];
                 $price = $row['price'];
                 $available_quantity = $row['available_quantity'];
                 $prescription_required = $row['prescription_required'];
@@ -67,14 +68,14 @@ if (isset($_POST['confirm_order'])) {
                 $total_amount += $price * $quantity;
 
                 // Insert into order_items table
-                $stmt = $conn->prepare("INSERT INTO order_items (order_id, product_name, quantity, price) VALUES (?, ?, ?, ?)");
-                $stmt->bind_param("issd", $order_id, $product_name, $quantity, $price);
+                $stmt = $conn->prepare("INSERT INTO order_items (order_id, product_id, product_name, quantity, price) VALUES (?, ?, ?, ?, ?)");
+                $stmt->bind_param("iisdd", $order_id, $product_id, $product_name, $quantity, $price);
 
                 if ($stmt->execute()) {
                     // Update product quantity
                     $new_quantity = $available_quantity - $quantity;
-                    $update_product = $conn->prepare("UPDATE products SET quantity = ? WHERE product_name = ?");
-                    $update_product->bind_param("is", $new_quantity, $product_name);
+                    $update_product = $conn->prepare("UPDATE products SET quantity = ? WHERE id = ?");
+                    $update_product->bind_param("ii", $new_quantity, $product_id);
                     $update_product->execute();
                 } else {
                     echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
@@ -96,6 +97,7 @@ if (isset($_POST['confirm_order'])) {
             $check_product->close();
         }
 
+
         // Update total amount in orders table
         $stmt = $conn->prepare("UPDATE orders SET total_amount = ? WHERE id = ?");
         $stmt->bind_param("di", $total_amount, $order_id);
@@ -113,7 +115,7 @@ if (isset($_POST['confirm_order'])) {
         echo "<script>alert('Order confirmed! Total Amount: " . $total_amount . "');</script>";
 
         // Redirect to dashboard after order confirmation
-        header("Location: dashboard.php");
+        header("Location: my_orders.php");
         exit();
     } else {
         // Error occurred
@@ -169,6 +171,7 @@ if (isset($_POST['confirm_order'])) {
         <meta charset="UTF-8">
         <title>Checkout</title>
         <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> 
     </head>
     <body class="bg-gray-100">
 
@@ -214,15 +217,27 @@ if (isset($_POST['confirm_order'])) {
                     </table>
                     <?php if ($prescription_required): ?>
                         <div class="mt-4">
-                        <h2 class="text-xl font-semibold mb-2">Upload Prescription</h2>
-                        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4" role="alert">
-                            <p class="font-bold">Please upload your prescription file:</p>
-                            <label for="prescription_image" class="block mt-2">
-                                <input type="file" name="prescription_image" id="prescription_image" class="mt-1 block w-full">
-                            </label>
+                            <h2 class="text-xl font-semibold mb-2">Products Requiring Prescription:</h2>
+                            <ul>
+                                <?php 
+                                $result->data_seek(0); // Reset result set pointer
+                                while ($row = $result->fetch_assoc()) { 
+                                    if ($row['prescription_required'] == 1) {
+                                        echo "<li><i class='fa-solid fa-prescription-bottle-medical'></i> " . htmlspecialchars($row['product_name']) . "</li>";
+                                    }
+                                } 
+                                ?>
+                            </ul>
                         </div>
-                    </div>
-
+                        <div class="mt-4">
+                            <h2 class="text-xl font-semibold mb-2">Upload Prescription</h2>
+                            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4" role="alert">
+                                <p class="font-bold">Please upload your prescription file:</p>
+                                <label for="prescription_image" class="block mt-2">
+                                    <input type="file" name="prescription_image" id="prescription_image" class="mt-1 block w-full">
+                                </label>
+                            </div>
+                        </div>
                     <?php endif; ?>
                     <div class="mt-4">
                         <h2 class="text-xl font-semibold mb-2">Total Amount: ₱ <?php echo $total_amount; ?></h2>

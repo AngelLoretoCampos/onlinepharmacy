@@ -60,13 +60,21 @@ echo '<p class="text-red-600 mb-2">* This product requires a prescription.</p>';
 }
 
 echo '
-    <!-- Add to Cart Button -->
+    <!-- Add to Cart Form -->
     <form action="add_to_cart.php" method="post" class="mt-4">
-        <input type="hidden" name="product_id" value="' . $product_id . '">';
+        <input type="hidden" name="product_id" value="' . $product_id . '">
+        
+        <!-- Quantity Input -->
+        <div class="flex items-center mb-2">
+            <button type="button" onclick="decrementQuantity()" class="bg-gray-200 px-3 py-1 rounded-l">-</button>
+           <input type="number" name="quantity" id="quantity" value="1" class="border text-center w-16">
+
+            <button type="button" onclick="incrementQuantity()" class="bg-gray-200 px-3 py-1 rounded-r">+</button>
+        </div>';
 
 // Disable the "Add to Cart" button if the product quantity is zero
 if ($quantity > 0) {
-echo '<button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onclick="return checkLogin()">Add to Cart</button>';
+echo '<button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" id="addToCartBtn">Add to Cart</button>';
 } else {
 echo '<button type="button" class="bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed" disabled>Add to Cart</button>';
 }
@@ -85,22 +93,25 @@ echo '
 
         $conn->close();
         ?>
-    </div>
 
-    <script>
-        function checkLogin() {
-            // Check if user is logged in (you can use your own method to check this)
-            var isLoggedIn = <?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>;
-
-            if (!isLoggedIn) {
-                alert('Please login to add items to the cart.');
-                window.location.href = 'login.php';
-                return false; // Stop form submission
+        <script>
+            function incrementQuantity() {
+                var quantityInput = document.getElementById('quantity');
+                var maxQuantity = <?php echo $quantity; ?>;
+                if (parseInt(quantityInput.value) < parseInt(maxQuantity)) {
+                    quantityInput.value = parseInt(quantityInput.value) + 1;
+                }
             }
 
-            return true; // Allow form submission
-        }
-    </script>
+            function decrementQuantity() {
+                var quantityInput = document.getElementById('quantity');
+                if (parseInt(quantityInput.value) > 1) {
+                    quantityInput.value = parseInt(quantityInput.value) - 1;
+                }
+            }
+        </script>
+
+    </div>
 
 </main>
 

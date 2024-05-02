@@ -17,6 +17,9 @@ $full_name = $_SESSION['full_name'];
     <title>Category List</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        
+    </style>
 </head>
 
 <?php 

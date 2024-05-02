@@ -1,4 +1,15 @@
 <?php
+
+// Start session
+session_start();
+
+// Check if the user is not logged in, redirect to login page
+if (!isset($_SESSION['rider_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
+
 // Database credentials
 $servername = "localhost";
 $username = "root";
@@ -20,7 +31,18 @@ $sql = "SELECT o.id, o.user_id, CONCAT(u.firstname, ' ', u.lastname) AS name, CO
         JOIN users u ON o.user_id = u.id
         WHERE o.order_status = 'Out for Delivery'";
 
+
+
 $result = $conn->query($sql);
+
+// Fetch logo image from the database
+$sqlLogo = "SELECT image FROM systemsetting";
+$resultLogo = $conn->query($sqlLogo);
+$rowLogo = $resultLogo->fetch_assoc();
+$imageData = $rowLogo['image']; // Assuming the image is stored as a longblob in the database
+
+// Convert image data to base64 encoding
+$logoBase64 = base64_encode($imageData);
 
 ?>
 <!DOCTYPE html>
@@ -36,7 +58,7 @@ $result = $conn->query($sql);
 </head>
 <body class="bg-gray-100">
     <div class="flex justify-between items-center px-4 py-2">
-    <img src="../system images/bgpp 1.png" alt="Lyfe Pharmacy Logo" class="h-20">
+    <img src="data:image/jpeg;base64,<?php echo $logoBase64; ?>" alt="Lyfe Pharmacy Logo" class="h-20">
         <!-- History and Logout icons -->
         <div class="ml-auto flex space-x-4">
             <a href="history.php" class="inline-block bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
