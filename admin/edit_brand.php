@@ -52,7 +52,7 @@ try {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Edit Brand</title>
+    <title>Edit Manufacturer</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -61,16 +61,12 @@ try {
     <div class="flex justify-center">
         <!-- Main Content -->
         <div class="container mx-auto mt-10 bg-white p-6 rounded-lg shadow-md">
-            <h1 class="text-2xl font-semibold mb-4">Edit Brand</h1>
+            <h1 class="text-2xl font-semibold mb-4">Edit Manufacturer</h1>
             <!-- Brand Edit Form -->
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                 <div class="mb-4">
-                    <label for="brand_name" class="block text-sm font-medium text-gray-600">Brand Name:</label>
+                    <label for="brand_name" class="block text-sm font-medium text-gray-600">Manufacturer Name:</label>
                     <input type="text" name="brand_name" id="brand_name" class="mt-1 p-2 w-full border rounded-md" value="<?php echo $brand['brand_name']; ?>" required>
-                </div>
-                <div class="mb-4">
-                    <label for="brand_description" class="block text-sm font-medium text-gray-600">Brand Description:</label>
-                    <textarea name="brand_description" id="brand_description" rows="3" class="mt-1 p-2 w-full border rounded-md" required><?php echo $brand['brand_description']; ?></textarea>
                 </div>
                 <div class="mb-4 text-right">
                     <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Save Changes</button>

@@ -43,7 +43,7 @@ try {
 
 <head>
     <meta charset="UTF-8">
-    <title>Brand List</title>
+    <title>Manufacturer List</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -57,9 +57,9 @@ try {
         <div class="container mx-auto mt-10 bg-white p-6 rounded-lg shadow-md">
             <!-- Header Section -->
             <div class="flex justify-between items-center mb-4">
-                <h1 class="text-2xl font-semibold">Brand List</h1>
+                <h1 class="text-2xl font-semibold">Manufacturer List</h1>
                 <!-- Modal Button -->
-                <button id="openModalButton" class="bg-green-500 text-white px-4 py-2 rounded-md">Add Brand</button>
+                <button id="openModalButton" class="bg-green-500 text-white px-4 py-2 rounded-md">Add Manufacturer</button>
             </div>
 
             <!-- Search Bar -->
@@ -71,31 +71,29 @@ try {
                     </button>
                 </div>
             </div>
-            <!-- Brands Table -->
-            <div class="overflow-x-auto" style="max-height: 500px;">
-                <table class="min-w-full bg-white border rounded">
-                    <thead class="bg-gray-800 text-white">
-                        <tr>
-                            <th class="w-1/4 text-center py-2 px-4">Brand Name</th>
-                            <th class="w-1/2 text-center py-2 px-4">Brand Description</th>
-                            <th class="w-1/4 text-center py-2 px-4">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-gray-700" id="brandTable">
-                        <?php foreach ($brands as $brand): ?>
-                            <tr>
-                                <td class="border px-4 py-2"><?php echo $brand['brand_name']; ?></td>
-                                <td class="border px-4 py-2"><?php echo $brand['brand_description']; ?></td>
-                                <td class="border px-4 py-2 text-center">
-                                    <a href="edit_brand.php?id=<?php echo $brand['brand_id']; ?>" class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-edit"></i></a>
-                                    <a href="delete_brand.php?id=<?php echo $brand['brand_id']; ?>" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></a>
+          <!-- Brands Table -->
+<div class="overflow-x-auto" style="max-height: 500px;">
+    <table class="min-w-full bg-white border rounded" style="width: 50%;">
+        <thead class="bg-gray-800 text-white">
+            <tr>
+                <th class="w-1/2 text-center py-2 px-4">Manufacturer Name</th>
+                <th class="w-1/2 text-center py-2 px-4">Action</th>
+            </tr>
+        </thead>
+        <tbody class="text-gray-700" id="brandTable">
+            <?php foreach ($brands as $brand): ?>
+                <tr>
+                    <td class="border px-4 py-2"><?php echo $brand['brand_name']; ?></td>
+                    <td class="border px-4 py-2 text-center">
+                        <a href="edit_brand.php?id=<?php echo $brand['brand_id']; ?>" class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-edit"></i></a>
+                        <a href="delete_brand.php?id=<?php echo $brand['brand_id']; ?>" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
 
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
 
             <!-- Pagination -->
             <div class="flex justify-between mt-4">
@@ -107,16 +105,12 @@ try {
             <!-- Modal -->
             <div id="myModal" class="fixed inset-0 bg-gray-700 bg-opacity-50 hidden flex justify-center items-center">
                 <div class="bg-white p-6 rounded-lg w-1/2">
-                    <h2 class="text-2xl font-semibold mb-4">Add Brand</h2>
+                    <h2 class="text-2xl font-semibold mb-4">Add Manufacturer</h2>
                     <form action="add_brand_process.php" method="post">
                         <!-- Add Brand Form Inputs -->
                         <div class="mb-4">
-                            <label for="brand_name" class="block text-sm font-medium text-gray-600">Brand Name:</label>
+                            <label for="brand_name" class="block text-sm font-medium text-gray-600">Manufacturer Name:</label>
                             <input type="text" name="brand_name" id="brand_name" class="mt-1 p-2 w-full border rounded-md" required>
-                        </div>
-                        <div class="mb-4">
-                            <label for="brand_description" class="block text-sm font-medium text-gray-600">Brand Description:</label>
-                            <textarea name="brand_description" id="brand_description" rows="3" class="mt-1 p-2 w-full border rounded-md" required></textarea>
                         </div>
                         <div class="mb-4 text-right">
                             <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Add Brand</button>

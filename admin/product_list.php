@@ -6,6 +6,7 @@
     <title>Product List</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    
 </head>
 
 <?php 
@@ -21,34 +22,7 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    
-    // Check if delete request is sent
-    if (isset($_POST['delete_id'])) {
-        // Begin a transaction to ensure atomicity
-        $pdo->beginTransaction();
-        
-        try {
-            // Delete the product from the products table
-            $delete_id = $_POST['delete_id'];
-            $stmtDeleteProduct = $pdo->prepare("DELETE FROM products WHERE id = :id");
-            $stmtDeleteProduct->bindValue(':id', $delete_id);
-            $stmtDeleteProduct->execute();
-                
-            // Commit the transaction if the deletion succeeds
-            $pdo->commit();
-                
-            // Redirect to product list page after deletion
-            header("refresh:1; url=product_list.php");
-            echo "Product deleted successfully.";
-            exit();
-        } catch (PDOException $e) {
-            // Rollback the transaction on error
-            $pdo->rollBack();
-            
-            // Display an alert box with the error message
-            echo '<script>alert("Error: ' . $e->getMessage() . '");</script>';
-        }
-    }
+
 
     // Pagination
     $limit = 10; // Number of products per page
@@ -108,7 +82,7 @@ try {
                         <th class="border px-4 py-2">Product Name</th>
                         <th class="border px-4 py-2">Price</th>
                         <th class="border px-4 py-2">Quantity</th>
-                        <th class="border px-4 py-2">Brand</th>
+                        <th class="border px-4 py-2">Manufacturer</th>
                         <th class="border px-4 py-2">Category</th>
                         <th class="border px-2 py-2">Actions</th>
                     </tr>
@@ -123,15 +97,25 @@ try {
                             <td class="border px-4 py-2"><?php echo htmlspecialchars($row['brand']); ?></td>
                             <td class="border px-4 py-2"><?php echo htmlspecialchars($row['category']); ?></td>
                             <!-- Inside the loop that generates the table rows -->
-                            <td class="border px-4 py-2">
-                                <div class="flex justify-center">
-                                    <a href="product_details.php?id=<?php echo $row['id']; ?>" class="text-green-500 mr-2"><i class="fas fa-edit"></i></a>
-                                    <form action="" method="post" onsubmit="return confirm('Are you sure you want to delete this product?');">
-                                        <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">
-                                        <button type="submit" class="text-red-500"><i class="fas fa-trash-alt"></i></button>
-                                    </form>
-                                </div>
-                            </td>
+                            <!-- Inside the loop that generates the table rows -->
+<td class="border px-4 py-2">
+    <div class="flex justify-center">
+        <a href="product_details.php?id=<?php echo $row['id']; ?>" class="text-green-500 mr-2"><i class="fas fa-edit"></i></a>
+        <a href="#" onclick="deleteProduct(<?php echo $row['id']; ?>)" class="text-red-500 mr-2"><i class="fas fa-trash-alt"></i></a>
+    </div>
+</td>
+
+<script>
+    function deleteProduct(productId) {
+        var confirmDelete = confirm("Are you sure you want to delete this product?");
+        if (confirmDelete) {
+            // Redirect to delete product page with the product ID
+            window.location.href = "product_delete.php?id=" + productId;
+        }
+    }
+</script>
+
+                    
 
                         </tr>
                     <?php } ?>

@@ -45,7 +45,7 @@ try {
                     <!-- Prescription Required -->
                     <div class="mb-4">
                         <label for="prescription_required" class="block text-sm font-medium text-gray-600">Prescription Required:</label>
-                        <select name="prescription_required" id="prescription_required" class="mt-1 p-2 w-full border rounded-md" required>
+                        <select name="prescription_required" id="prescription_required" class="mt-1 p-2 w-full border border-green-500 rounded-md" required>
                             <option value="" disabled selected>Select</option>
                             <option value="1">Yes</option>
                             <option value="0">No</option>
@@ -54,9 +54,9 @@ try {
 
                     <!-- Brand -->
                     <div class="mb-4">
-                        <label for="brand" class="block text-sm font-medium text-gray-600">Brand:</label>
-                        <select name="brand" id="brand" class="mt-1 p-2 w-full border rounded-md" required>
-                            <option value="" disabled selected>Select Brand</option>
+                        <label for="brand" class="block text-sm font-medium text-gray-600">Manufacturer:</label>
+                        <select name="brand" id="brand" class="mt-1 p-2 w-full border border-green-500 rounded-md" required>
+                            <option value="" disabled selected>Select Manufacturer</option>
                             <?php foreach ($brands as $brand): ?>
                                 <option value="<?php echo $brand['brand_name']; ?>"><?php echo $brand['brand_name']; ?></option>
                             <?php endforeach; ?>
@@ -66,7 +66,7 @@ try {
                     <!-- Category -->
                     <div class="mb-4">
                         <label for="category" class="block text-sm font-medium text-gray-600">Category:</label>
-                        <select name="category" id="category" class="mt-1 p-2 w-full border rounded-md" required>
+                        <select name="category" id="category" class="mt-1 p-2 w-full border border-green-500 rounded-md" required>
                             <option value="" disabled selected>Select Category</option>
                             <?php foreach ($categories as $category): ?>
                                 <option value="<?php echo $category['categoryName']; ?>"><?php echo $category['categoryName']; ?></option>
@@ -77,33 +77,37 @@ try {
                     <!-- Product Name -->
                     <div class="mb-4">
                         <label for="product_name" class="block text-sm font-medium text-gray-600">Product Name:</label>
-                        <input type="text" name="product_name" id="product_name" class="mt-1 p-2 w-full border rounded-md" required>
+                        <input type="text" name="product_name" id="product_name" class="mt-1 p-2 w-full border border-green-500 rounded-md" required>
                     </div>
 
                     <!-- Product Description -->
                     <div class="mb-4">
                         <label for="product_description" class="block text-sm font-medium text-gray-600">Product Description:</label>
-                        <textarea name="product_description" id="product_description" rows="3" class="mt-1 p-2 w-full border rounded-md" required></textarea>
+                        <textarea name="product_description" id="product_description" rows="3" class="mt-1 p-2 w-full border  border-green-500 rounded-md" required></textarea>
                     </div>
 
                     <!-- Quantity -->
                     <div class="mb-4">
                         <label for="quantity" class="block text-sm font-medium text-gray-600">Quantity:</label>
-                        <input type="number" name="quantity" id="quantity" class="mt-1 p-2 w-full border rounded-md">
+                        <input type="number" name="quantity" id="quantity" class="mt-1 p-2 w-full border border-green-500 rounded-md">
                     </div>
 
                     <!-- Price -->
                     <div class="mb-4">
                         <label for="price" class="block text-sm font-medium text-gray-600">Price:</label>
-                        <input type="number" name="price" id="price" class="mt-1 p-2 w-full border rounded-md">
+                        <input type="number" name="price" id="price" class="mt-1 p-2 w-full border border-green-500 rounded-md">
                     </div>
 
                     <!-- Product Image -->
-                    <div class="mb-4">
-                        <label for="product_image" class="block text-sm font-medium text-gray-600">Upload Image:</label>
-                        <input type="file" name="product_image" id="product_image" class="mt-1 p-2 w-full border rounded-md" required onchange="previewImage(event)">
-                        <img id="preview" class="mt-2 w-full hidden" alt="Image Preview" />
-                    </div>
+                  <div class="mb-4 border rounded-xl border-green-500 relative">
+                <!-- Styled button to mimic file input -->
+                <label for="product_image" class="absolute left-0 bg-green-500 text-white px-4 py-3 rounded-l-lg cursor-pointer">Choose File</label>
+                <!-- Actual file input (hidden) -->
+                <input type="file" name="product_image" id="product_image" accept="image/*" class="opacity-0 left-0 px-4 m-2.5 cursor-pointer" onchange="showFileName(this)">
+                <!-- Display selected file name -->
+                <span id="file-name" class="absolute left-0 bg-white px-4 py-3 rounded-l-lg cursor-pointer hidden"></span>
+            </div>
+
 
                     <!-- Submit Button -->
                     <div class="mb-4">
@@ -115,6 +119,18 @@ try {
     </div>
 
     <script>
+
+    function showFileName(input) {
+    const fileNameSpan = document.getElementById('file-name');
+    if (input.files.length > 0) {
+        fileNameSpan.textContent = input.files[0].name;
+        fileNameSpan.classList.remove('hidden');
+    } else {
+        fileNameSpan.textContent = '';
+        fileNameSpan.classList.add('hidden');
+    }
+}
+
         function previewImage(event) {
             const preview = document.getElementById('preview');
             const file = event.target.files[0];

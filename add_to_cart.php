@@ -44,7 +44,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['product_id']) && isset
         $stmt->execute();
     }
 
-    header("Location: cart.php");
+    header("Location: view_product.php?id=$product_id&added=true");
+
     exit;
 }
 

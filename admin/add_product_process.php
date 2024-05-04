@@ -1,4 +1,6 @@
 <?php
+session_start(); // Start the session
+
 // Database connection details
 $servername = "localhost";
 $username = "root";
@@ -30,6 +32,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->bind_param("ssssssdd", $product_name, $product_description, $product_image, $prescription_required, $brand, $category, $quantity, $price);
 
     if ($stmt->execute()) {
+        // Set success message in session variable
+        $_SESSION['success_message'] = "Product added successfully.";
+
         // Redirect to product list page
         header("Location: product_list.php");
         exit; // Ensure script stops executing after redirect

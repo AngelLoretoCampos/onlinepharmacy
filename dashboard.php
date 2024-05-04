@@ -19,6 +19,9 @@ if (isset($_GET['query']) && !empty($_GET['query'])) {
         $sql .= " WHERE category = '$category'";
     }
 
+    // Add random ordering
+    $sql .= " ORDER BY RAND()";
+
     // Execute SQL query
     $result = $conn->query($sql);
 
@@ -80,7 +83,7 @@ if (isset($_GET['query']) && !empty($_GET['query'])) {
                 </a>';
             }
         } else {
-            echo '<p class="text-center">No products found.</p>';
+            echo '<p class="text-center">No products founds.</p>';
         }
         ?>
     </section>

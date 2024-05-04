@@ -101,6 +101,40 @@ $conn->close();
 
     </div>
 
+<?php
+// Check if the order confirmation message should be displayed
+if (isset($_GET['orderConfirmed']) && $_GET['orderConfirmed'] === 'true') {
+    // JavaScript to display a styled message for 2 seconds
+    echo '
+    <script>
+        // Create a div element for the message
+        var messageDiv = document.createElement("div");
+        
+        // Set the message and styling
+        messageDiv.textContent = "Order confirmed successfully!";
+        messageDiv.style.backgroundColor = "#34D399"; // Green 500
+        messageDiv.style.color = "#fff";
+        messageDiv.style.padding = "10px";
+        messageDiv.style.borderRadius = "5px";
+        messageDiv.style.position = "fixed";
+        messageDiv.style.top = "50%";
+        messageDiv.style.left = "50%";
+        messageDiv.style.transform = "translate(-50%, -50%)";
+        messageDiv.style.zIndex = "9999";
+        messageDiv.style.textAlign = "center"; // Center text
+        
+        // Append the message to the body
+        document.body.appendChild(messageDiv);
+        
+        // Remove the message after 2 seconds
+        setTimeout(function() {
+            messageDiv.remove();
+        }, 2000);
+    </script>';
+}
+?>
+
+
 </main>
 
 <?php include 'inc/footer.php'; ?>

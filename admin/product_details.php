@@ -9,6 +9,9 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+    // Initialize $message variable
+    $message = '';
+
     // Check if form is submitted
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Check if all required fields are provided
@@ -30,6 +33,9 @@ try {
                 $stmt = $pdo->prepare("UPDATE products SET product_name = ?, product_description = ?, quantity = ?, price = ? WHERE id = ?");
                 $stmt->execute([$productName, $productDescription, $quantity, $price, $id]);
             }
+
+            // Set success message
+            $message = "Product updated successfully.";
         } else {
             // Redirect or handle the case when required fields are missing
             // For example:
@@ -119,6 +125,18 @@ try {
             </div>
         </div>
     </div>
+
+    <?php if (!empty($message)): ?>
+        <div id="successMessage" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-6 py-3 rounded-md shadow-md">
+            <?php echo $message; ?>
+        </div>
+        <script>
+            // Hide the success message after 3 seconds
+            setTimeout(function(){
+                document.getElementById("successMessage").style.display = "none";
+            }, 3000);
+        </script>
+    <?php endif; ?>
 
 </body>
 

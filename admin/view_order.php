@@ -143,35 +143,7 @@ if (isset($_GET['success'])) {
             </table>
             </div>
 
-<!-- Medicines Requiring Prescription -->
-<?php
-// Check if any of the items in the order require a prescription
-$stmt = $conn->prepare("SELECT COUNT(*) AS count FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ? AND p.prescription_required = 1");
-$stmt->bind_param("i", $order_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$count = $result->fetch_assoc()['count'];
 
-if ($count > 0) {
-?>
-<div class="bg-white border shadow-lg p-6 mt-6 mb-5">
-    <h2 class="text-xl font-semibold mb-2">Medicines Requiring Prescription</h2>
-    <ul class="list-disc ml-8">
-        <?php
-        // Fetch products requiring prescription in this order
-        $stmt = $conn->prepare("SELECT p.product_name FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ? AND p.prescription_required = 1");
-        $stmt->bind_param("i", $order_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        while ($row = $result->fetch_assoc()) {
-            echo "<li>" . htmlspecialchars($row['product_name']) . "</li>";
-        }
-        ?>
-    </ul>
-</div>
-<?php
-}
-?>
 
             <!-- Update Order Status Form -->
             <div class="mb-4 shadow-xl border">
@@ -277,10 +249,6 @@ function hideModal() {
 
 </main>
 
-<?php
-$stmt->close();
-$conn->close();
-?>
 
 </body>
 </html>

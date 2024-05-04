@@ -17,8 +17,14 @@ $full_name = $_SESSION['full_name'];
     <title>Category List</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <style>
-        
+     <style>
+        /* Custom CSS */
+        .category-table th,
+        .category-table td {
+            width: 25%; /* Adjust the width as needed */
+            min-width: 200px; /* Set a minimum width to prevent content overflow */
+            max-width: 400px; /* Set a maximum width to limit the width of the table cells */
+        }
     </style>
 </head>
 
@@ -81,13 +87,16 @@ try {
 }
 ?>
 
-<body class="bg-gray-100 ml-64 mt-20 flex">
+<body class="bg-gray-100 ml-64 mt-10 flex">
     <div class=" items-center w-full">
         <div class="bg-white w-full  rounded-md p-6">
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-2xl font-semibold">Category List</h1>
                 <!-- Add Category Button -->
-                <button id="addCategoryBtn" class="bg-green-500 text-white px-4 py-2 rounded">Add Category</button>
+                <button class="bg-green-500 text-white px-4 py-2 rounded">
+                    <a href="add_category.php" class="text-white">Add Category</a>
+                </button>
+
             </div>
             
             <!-- Search Bar -->
@@ -99,8 +108,8 @@ try {
             </form>
 
             <!-- Category List Table -->
-            <table class="min-w-full text-center">
-                <thead  class="bg-gray-800 text-white">
+            <table class="min-w-full text-center category-table">
+                <thead class="bg-gray-800 text-white">
                     <tr>
                         <th class="border px-4 py-2">Category</th>
                         <th class="border px-4 py-2">Category Description</th>
@@ -109,63 +118,33 @@ try {
                 </thead>
                 <tbody>
                     <?php foreach ($categories as $category) { ?>
-                        <tr>
-                            <td class="border px-4 py-2"><?php echo htmlspecialchars($category['categoryName']); ?></td>
-                            <td class="border px-4 py-2"><?php echo htmlspecialchars($category['cat_desc']); ?></td>
-                            <td class="border px-4 py-2">
-                                <a href="edit_category.php?id=<?php echo $category['id']; ?>" class="text-blue-500 mr-2"><i class="fas fa-edit"></i></a>
-                                <a href="delete_category.php?id=<?php echo $category['id']; ?>" class="text-red-500"><i class="fas fa-trash-alt"></i></a>
-                            </td>
-                        </tr>
+                    <tr>
+                        <td class="border px-4 py-2"><?php echo htmlspecialchars($category['categoryName']); ?>
+                        </td>
+                        <td class="border px-4 py-2"><?php echo htmlspecialchars($category['cat_desc']); ?>
+                        </td>
+                        <td class="border px-4 py-2">
+                            <a href="edit_category.php?id=<?php echo $category['id']; ?>"
+                                class="text-blue-500 mr-2"><i class="fas fa-edit"></i></a>
+                            <a href="delete_category.php?id=<?php echo $category['id']; ?>"
+                                class="text-red-500"><i class="fas fa-trash-alt"></i></a>
+                        </td>
+                    </tr>
                     <?php } ?>
                 </tbody>
             </table>
-           <!-- Pagination -->
-        <div class="flex justify-between mt-4">
-            <a href="?page=<?php echo $currentPage - 1; ?>&search=<?php echo htmlspecialchars($search); ?>" class="px-4 py-2 bg-green-500 text-white rounded <?php echo ($currentPage <= 1) ? 'opacity-50 cursor-not-allowed' : ''; ?>">Prev</a>
-            
-            <div>
-                Page <?php echo $currentPage; ?> of <?php echo $totalPages; ?>
-            </div>
-            
-            <a href="?page=<?php echo $currentPage + 1; ?>&search=<?php echo htmlspecialchars($search); ?>" class="px-4 py-2 bg-green-500 text-white rounded <?php echo ($currentPage >= $totalPages) ? 'opacity-50 cursor-not-allowed' : ''; ?>">Next</a>
-        </div>
+            <!-- Pagination -->
+            <div class="flex justify-between mt-4">
+                <a href="?page=<?php echo $currentPage - 1; ?>&search=<?php echo htmlspecialchars($search); ?>"
+                    class="px-4 py-2 bg-green-500 text-white rounded <?php echo ($currentPage <= 1) ? 'opacity-50 cursor-not-allowed' : ''; ?>">Prev</a>
 
-
-            <!-- Add Category Modal -->
-            <div id="addCategoryModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center hidden">
-                <div class="bg-white w-full max-w-md rounded-md p-6">
-                    <h2 class="text-2xl font-semibold mb-4">Enter a Category</h2>
-                    <form id="categoryForm" action="" method="post" class="space-y-4">
-                        <div class="flex flex-col mb-4">
-                            <label for="category" class="text-sm font-medium text-gray-600 mb-1">Category:</label>
-                            <input type="text" id="category" name="category" required class="border rounded-md p-2">
-                        </div>
-                        <div class="flex flex-col mb-4">
-                            <label for="cat_desc" class="text-sm font-medium text-gray-600 mb-1">Category Description:</label>
-                            <input type="text" id="cat_desc" name="cat_desc" required class="border rounded-md p-2">
-                        </div>
-                        <div class="text-right">
-                            <input type="submit" value="Submit" class="bg-green-500 text-white px-4 py-2 rounded">
-                        </div>
-                    </form>
+                <div>
+                    Page <?php echo $currentPage; ?> of <?php echo $totalPages; ?>
                 </div>
+
+                <a href="?page=<?php echo $currentPage + 1; ?>&search=<?php echo htmlspecialchars($search); ?>"
+                    class="px-4 py-2 bg-green-500 text-white rounded <?php echo ($currentPage >= $totalPages) ? 'opacity-50 cursor-not-allowed' : ''; ?>">Next</a>
             </div>
-
-            <script>
-                // Show modal when Add Category button is clicked
-                document.getElementById('addCategoryBtn').addEventListener('click', function() {
-                    document.getElementById('addCategoryModal').classList.remove('hidden');
-                });
-
-                // Close modal when anywhere outside the modal is clicked
-                document.addEventListener('click', function(event) {
-                    const modal = document.getElementById('addCategoryModal');
-                    if (event.target === modal) {
-                        modal.classList.add('hidden');
-                    }
-                });
-            </script>
         </div>
     </div>
 </body>

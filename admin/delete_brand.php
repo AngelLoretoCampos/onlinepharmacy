@@ -28,12 +28,12 @@ try {
             exit();
         } else {
             // Brand not found, redirect to brand list page with error message
-            header("Location: brand_list.php?error=Brand not found");
+            header("Location: brand_list.php?error=Manufacturer not found");
             exit();
         }
     } else {
         // Brand ID not provided, redirect to brand list page with error message
-        header("Location: brand_list.php?error=Brand ID not provided");
+        header("Location: brand_list.php?error=Manufacturrer ID not provided");
         exit();
     }
 } catch (PDOException $e) {

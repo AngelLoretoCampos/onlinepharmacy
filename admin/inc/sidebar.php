@@ -57,7 +57,7 @@ include 'inc/logodisplay.php';
             </li>
             <li>
                 <a href="brand_list.php" class="flex items-center px-4 py-2 hover:bg-gray-800 hover:text-red-500 rounded transition duration-200">
-                    <i class="bi bi-tag-fill mr-2"></i>Brand List
+                    <i class="bi bi-tag-fill mr-2"></i>Manufacturer List
                 </a>
             </li>
             <li>

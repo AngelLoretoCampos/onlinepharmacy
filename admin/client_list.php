@@ -1,118 +1,133 @@
 <?php
-include '../database/dbconnection.php';
+// Database connection
+$host = 'localhost';
+$dbname = 'onlinepharmacy_db';
+$username = 'root';
+$password = '';
 
-// Check if session is not already started
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-
-$user_name = "";
-$login_logout_text = "";
-$login_logout_url = "";
-
-if (isset($_SESSION['user_id'])) {
-    $user_id = $_SESSION['user_id'];
-
-    $stmt = $conn->prepare("SELECT * FROM users WHERE id = :id");
-    $stmt->bindParam(':id', $user_id);
-    $stmt->execute();
-
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    $user_name = $user['firstname'];
-    $login_logout_text = "Logout";
-    $login_logout_url = "logout.php";
-} else {
-    $user_name = "";
-    $login_logout_text = "Login";
-    $login_logout_url = "login.php";
-}
-
-// Fetch all users from the database
-if(isset($_GET['search'])) {
-    $search = $_GET['search'];
-    $stmt = $conn->prepare("SELECT * FROM users WHERE email LIKE :search OR firstname LIKE :search OR lastname LIKE :search OR contact LIKE :search OR gender LIKE :search OR city LIKE :search OR province LIKE :search OR barangay LIKE :search OR additional_address LIKE :search");
-    $stmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
-} else {
-    $stmt = $conn->prepare("SELECT * FROM users");
-}
-$stmt->execute();
-$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Pagination variables
 $perPage = 10; // Number of items per page
 $page = isset($_GET['page']) && is_numeric($_GET['page']) ? $_GET['page'] : 1; // Current page number
-$totalUsers = count($users); // Total number of users
-$totalPages = ceil($totalUsers / $perPage); // Calculate total pages
+$searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
 
-include 'inc/sidebar.php';
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Build the SQL query for searching
+    $sql = "SELECT * FROM users";
+
+    if (!empty($searchTerm)) {
+        $sql .= " WHERE ";
+        $columns = ['email', 'firstname', 'lastname', 'contact', 'gender', 'city', 'province', 'barangay', 'additional_address'];
+        $conditions = [];
+        foreach ($columns as $column) {
+            $conditions[] = "$column LIKE :searchTerm";
+        }
+        $sql .= implode(" OR ", $conditions);
+    }
+
+    // Prepare and execute the SQL query
+    $stmt = $pdo->prepare($sql);
+    
+    if (!empty($searchTerm)) {
+        $searchTerm = "%$searchTerm%";
+        $stmt->bindParam(':searchTerm', $searchTerm, PDO::PARAM_STR);
+    }
+
+    $stmt->execute();
+    $clients = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Count total number of clients
+    $total = count($clients);
+
+    // Calculate total pages
+    $totalPages = ceil($total / $perPage);
+
+    // Ensure current page is within valid range
+    $page = max(1, min($totalPages, $page));
+
+    // Calculate the offset for the query
+    $offset = ($page - 1) * $perPage;
+
+    // Fetch clients for the current page with pagination
+    $sql .= " LIMIT :offset, :perPage";
+    $stmt = $pdo->prepare($sql);
+    if (!empty($searchTerm)) {
+        $stmt->bindParam(':searchTerm', $searchTerm, PDO::PARAM_STR);
+    }
+    $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+    $stmt->bindParam(':perPage', $perPage, PDO::PARAM_INT);
+    $stmt->execute();
+    $clients = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+} catch (PDOException $e) {
+    // Handle database errors
+    echo "Error: " . $e->getMessage();
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>All Users Info</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <title>Client List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
-<body class="bg-gray-100 ml-64">
-    <main class="container mt-10 p-6 flex bg-white rounded-lg shadow-md">
-        <div class="mx-auto">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-semibold">All Users</h1>
-                <form action="" method="get" class="flex">
-                    <input type="text" name="search" placeholder="Search..." class="border rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button type="submit" class="bg-blue-500 text-white px-4 py-1 rounded-md ml-2"> <i class="fas fa-search"></i></button>
-                </form>
-            </div>
-            <table class="w-full table-auto">
+
+<body class="bg-gray-100 font-sans ml-64 leading-normal tracking-normal">
+    <!-- Sidebar -->
+    <?php include 'inc/sidebar.php'; ?>
+
+    <!-- Main Content -->
+    <div class="container mx-auto mt-10 bg-white p-6 rounded-lg shadow-md">
+        <!-- Header Section -->
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-2xl font-semibold">User List</h1>
+            <!-- Search Bar -->
+            <form action="" method="GET" class="flex">
+                <input type="text" name="search" placeholder="Search..." class="border rounded-l py-2 px-4 outline-none">
+                <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded-r hover:bg-blue-600 focus:outline-none"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </form>
+        </div>
+
+        <!-- Clients Table -->
+        <div class="overflow-x-auto" style="max-height: 500px;">
+            <table class="min-w-full bg-white border rounded">
                 <thead class="bg-gray-800 text-white">
                     <tr>
-                        <th class="border px-4 py-2">Email</th>
-                        <th class="border px-4 py-2">First Name</th>
-                        <th class="border px-4 py-2">Last Name</th>
-                        <th class="border px-4 py-2">Contact</th>
-                        <th class="border px-4 py-2">Gender</th>
-                        <th class="border px-4 py-2">City</th>
-                        <th class="border px-4 py-2">Province</th>
-                        <th class="border px-4 py-2">Barangay</th>
-                        <th class="border px-4 py-2">Additional Address</th>
-                        <th class="border px-4 py-2">Manage</th> 
+                        <th class="w-1/11 text-center py-2 px-4">Email</th>
+                        <th class="w-1/11 text-center py-2 px-4">First Name</th>
+                        <th class="w-1/11 text-center py-2 px-4">Last Name</th>
+                        <th class="w-1/11 text-center py-2 px-4">Contact</th>
+                        <th class="w-1/11 text-center py-2 px-4">Gender</th>
+                        <th class="w-1/11 text-center py-2 px-4">Address</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <?php foreach ($users as $user): ?>
+                <tbody class="text-gray-700" id="clientTable">
+                    <?php foreach ($clients as $client): ?>
                         <tr>
-                            <td class="border px-4 py-2"><?php echo $user['email']; ?></td>
-                            <td class="border px-4 py-2"><?php echo $user['firstname']; ?></td>
-                            <td class="border px-4 py-2"><?php echo $user['lastname']; ?></td>
-                            <td class="border px-4 py-2"><?php echo $user['contact']; ?></td>
-                            <td class="border px-4 py-2"><?php echo $user['gender']; ?></td>
-                            <td class="border px-4 py-2"><?php echo $user['city']; ?></td>
-                            <td class="border px-4 py-2"><?php echo $user['province']; ?></td>
-                            <td class="border px-4 py-2"><?php echo $user['barangay']; ?></td>
-                            <td class="border px-4 py-2"><?php echo $user['additional_address']; ?></td>
-                            <td class="border text-center px-4 py-2">
-                                <a href="user_history.php?id=<?php echo $user['id']; ?>" class="text-blue-500">
-                                    <i class="fas fa-eye"></i> <!-- View icon -->
-                                </a>
-
-                                <a href="delete_user.php?id=<?php echo $user['id']; ?>" class="text-red-500 ml-2" onclick="return confirm('Are you sure you want to delete this user?');">
-                                    <i class="fas fa-trash-alt"></i> <!-- Delete icon -->
-                                </a>
-                                
-                            </td>
+                            <td class="border px-4 py-2"><?php echo $client['email']; ?></td>
+                            <td class="border px-4 py-2"><?php echo $client['firstname']; ?></td>
+                            <td class="border px-4 py-2"><?php echo $client['lastname']; ?></td>
+                            <td class="border px-4 py-2"><?php echo $client['contact']; ?></td>
+                            <td class="border px-4 py-2"><?php echo $client['gender']; ?></td>
+                            <td class="border px-4 py-2"><?php echo $client['city'] . ', ' . $client['province'] . ', ' . $client['barangay']  . ', ' . $client['additional_address']; ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
-            <!-- Pagination -->
-            <div class="flex justify-between mt-4">
-                <a href="?start_date=<?php echo $start_date; ?>&end_date=<?php echo $end_date; ?>&page=<?php echo $page - 1; ?>" class="px-4 py-2 bg-green-500 text-white rounded <?php echo ($page <= 1) ? 'opacity-50 cursor-not-allowed' : ''; ?>">Prev</a>
-                <div>Page <?php echo $page; ?> of <?php echo $totalPages; ?></div>
-                <a href="?start_date=<?php echo $start_date; ?>&end_date=<?php echo $end_date; ?>&page=<?php echo $page + 1; ?>" class="px-4 py-2 bg-green-500 text-white rounded <?php echo ($page >= $totalPages) ? 'opacity-50 cursor-not-allowed' : ''; ?>">Next</a>
-            </div>
         </div>
-    </main>
+
+        <!-- Pagination -->
+        <div class="flex justify-between mt-4">
+            <a href="?page=<?php echo $page - 1; ?>" class="px-4 py-2 bg-green-500 text-white rounded <?php echo ($page <= 1) ? 'opacity-50 cursor-not-allowed' : ''; ?>">Prev</a>
+            <div>Page <?php echo $page; ?> of <?php echo $totalPages; ?></div>
+            <a href="?page=<?php echo $page + 1; ?>" class="px-4 py-2 bg-green-500 text-white rounded <?php echo ($page >= $totalPages) ? 'opacity-50 cursor-not-allowed' : ''; ?>">Next</a>
+        </div>
+    </div>
+
 </body>
+
 </html>

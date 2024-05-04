@@ -16,7 +16,7 @@ include 'inc/sidebar.php';
         <div class="bg-white w-full max-w-xl rounded-md p-6">
             <h2 class="text-2xl font-semibold mb-4">Enter a Category</h2>
 
-            <form id="categoryForm" class="space-y-4">
+            <form id="categoryForm" action="process_category.php" method="POST" class="space-y-4">
                 <div class="flex flex-col mb-4">
                     <label for="category" class="text-sm font-medium text-gray-600 mb-1">Category:</label>
                     <input type="text" id="category" name="category" required class="border rounded-md p-2">
@@ -26,36 +26,21 @@ include 'inc/sidebar.php';
                     <input type="text" id="cat_desc" name="cat_desc" required class="border rounded-md p-2">
                 </div>
                 <div class="text-left">
-                    <input type="submit" value="Submit" class="bg-green-500 text-white px-4 py-2 rounded">
+                    <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Submit</button>
                 </div>
             </form>
-
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    const form = document.getElementById('categoryForm');
-
-                    form.addEventListener('submit', function(event) {
-                        event.preventDefault();
-
-                        const categoryInput = document.getElementById('category');
-                        const cat_descInput = document.getElementById('cat_desc');
-                        const category = categoryInput.value;
-                        const cat_desc = cat_descInput.value;
-
-                        // You can add validation or further processing here
-
-                        console.log('Category entered:', category);
-                        console.log('Category Description entered:', cat_desc);
-                        alert('Category entered: ' + category + '\nCategory Description entered: ' + cat_desc);
-
-                        // Clear the input fields
-                        categoryInput.value = '';
-                        cat_descInput.value = '';
-                    });
-                });
-            </script>
         </div>
     </div>
+
+    <script>
+        // Add event listener for form submission
+        document.getElementById('categoryForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+            // You can perform additional validation here if needed
+            // Submit the form via AJAX or let it submit normally
+            this.submit(); // Submit the form
+        });
+    </script>
 </body>
 
 </html>

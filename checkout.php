@@ -1,4 +1,7 @@
+
 <?php
+
+
 session_start();
 
 // Database connection
@@ -59,7 +62,11 @@ if (isset($_POST['confirm_order'])) {
                 $prescription_required = $row['prescription_required'];
 
                 if ($quantity > $available_quantity) {
-                    echo "Not enough quantity available for product: " . $product_name;
+                    echo " <script>
+    alert('Not enough quantity available for the selected product.');
+    window.history.back();
+</script>";
+
                     $conn->rollback();
                     exit;
                 }
@@ -84,7 +91,10 @@ if (isset($_POST['confirm_order'])) {
                 }
 
                 if ($prescription_required == 1 && empty($prescription_image)) {
-                    echo "Prescription is required for product: " . $product_name . ", please upload prescription image.";
+                    echo $error_missing_prescription = "<script>
+    alert('Prescription is required for  " . $product_name . ", Please upload the prescription image.');
+    window.history.back();
+</script>";
                     $conn->rollback();
                     exit;
                 }
@@ -115,8 +125,10 @@ if (isset($_POST['confirm_order'])) {
         echo "<script>alert('Order confirmed! Total Amount: " . $total_amount . "');</script>";
 
         // Redirect to dashboard after order confirmation
-        header("Location: my_orders.php");
+       // Redirect to my_orders.php after order confirmation with a query parameter indicating success
+        header("Location: my_orders.php?orderConfirmed=true");
         exit();
+
     } else {
         // Error occurred
         echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
@@ -164,6 +176,8 @@ if (isset($_POST['confirm_order'])) {
     // HTML content
     include 'inc/header.php';
     ?>
+
+    
 
     <!DOCTYPE html>
     <html lang="en">
@@ -255,4 +269,5 @@ if (isset($_POST['confirm_order'])) {
 
     <?php
 }
+include 'inc/footer.php';
 ?>
